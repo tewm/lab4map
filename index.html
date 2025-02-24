@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab 4</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Your Mapbox Access Token
+        const accessToken = 'pk.eyJ1IjoidGV3bSIsImEiOiJjbTZ6ZGx3ZHUwNDFwMm1wdGJxbzR5N3llIn0.JpZW9aPaLHT2ORcBJvG4zg';
+
+        // Your custom Mapbox Style URL
+        const mapboxStyle = 'tewm/cm7d9ktzj001o01sg2w9z6dnv';
+
+        // Initialize the map
+        const map = L.map('map').setView([40.730610, -73.935242], 13); // Default view (NYC)
+
+        // Add the Mapbox basemap
+        L.tileLayer(`https://api.mapbox.com/styles/v1/${mapboxStyle}/tiles/{z}/{x}/{y}?access_token=${accessToken}`, {
+            tileSize: 512,
+            zoomOffset: -1,
+            attribution: '© <a href="https://www.mapbox.com/">Mapbox</a>'
+        }).addTo(map);
+
+        // Fetch the NYC neighborhoods GeoJSON file (or your downloaded file)
+        fetch('nyc_zipcode.geojson')  // Replace with your downloaded GeoJSON file path
+            .then(response => response.json())
+            .then(data => {
+                // Add the GeoJSON data to the map
+                L.geoJSON(data, {
+                    style: function (feature) {
+                        return {
+                            color: "blue", // Border color
+                            fillColor: "lightblue", // Inside color
+                            fillOpacity: 0.5,
+                            weight: 1
+                        };
+                    },
+                    onEachFeature: function (feature, layer) {
+                        // Bind a popup to each feature
+                        const popupContent = feature.properties.name || "No Name";
+                        layer.bindPopup(`<b>Feature:</b> ${popupContent}`);
+                    }
+                }).addTo(map);
+            })
+            .catch(error => console.error('Error loading the GeoJSON file:', error));
+    </script>
+</body>
+</html>
